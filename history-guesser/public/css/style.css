@@ -2,3 +2,183 @@ html{
   background-color: #F4F9E9;
   color: #153243;
 }
+
+.typing-indicator {
+  background-color: #e6e7ed;
+  will-change: transform;
+  width: auto;
+  border-radius: 50px;
+  padding: 20px;
+  display: table;
+  margin: 0 auto;
+  position: relative;
+  -webkit-animation: 2s bulge infinite ease-out;
+          animation: 2s bulge infinite ease-out;
+    transform: scale(.55);
+}
+.typing-indicator::before, .typing-indicator::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: -2px;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background-color: #e6e7ed;
+}
+.typing-indicator::after {
+  height: 10px;
+  width: 10px;
+  left: -10px;
+  bottom: -10px;
+}
+.typing-indicator span {
+  height: 15px;
+  width: 15px;
+  float: left;
+  margin: 0 1px;
+  background-color: #9e9ea1;
+  display: block;
+  border-radius: 50%;
+  opacity: 0.4;
+}
+.typing-indicator span:nth-of-type(1) {
+  -webkit-animation: 1s blink infinite 0.3333s;
+          animation: 1s blink infinite 0.3333s;
+}
+.typing-indicator span:nth-of-type(2) {
+  -webkit-animation: 1s blink infinite 0.6666s;
+          animation: 1s blink infinite 0.6666s;
+}
+.typing-indicator span:nth-of-type(3) {
+  -webkit-animation: 1s blink infinite 0.9999s;
+          animation: 1s blink infinite 0.9999s;
+}
+
+@-webkit-keyframes blink {
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 1;
+  }
+}
+@-webkit-keyframes bulge {
+  50% {
+    transform: scale(.58);
+  }
+}
+@keyframes bulge {
+  50% {
+    transform: scale(.58);
+  }
+}
+
+
+
+
+
+
+.quote {
+  display: inline-block;
+  margin: 2ex 1em;
+}
+.quote p {
+  font-weight: 500;
+}
+.quote p .time-ago {
+  font-size: 90%;
+  color: tint(#2D4154, 40%);
+}
+.quote blockquote {
+  color: tint(#2D4154, 20%);
+  margin: 0;
+}
+.quote .round-avatar {
+  border-radius: 50%;
+  border: 1px solid #E0E8ED;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  float: left;
+  margin-right: 0.5em;
+}
+.quote .speech-bubble {
+  float: left;
+}
+.quote .speech-bubble.left {
+  border: 1px solid #E0E8ED;
+  border-radius: 6px;
+  position: relative;
+  margin-right: 9px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  margin-left: 4px;
+  margin-bottom: 4px;
+  padding: 1ex 1em;
+  background: #FDFDFE;
+}
+.quote .speech-bubble.left:after, .quote .speech-bubble.left:before {
+  content: "";
+  display: block;
+  position: absolute;
+}
+.quote .speech-bubble.left:after {
+  top: 16px;
+}
+.quote .speech-bubble.left:before {
+  top: 14px;
+}
+.quote .speech-bubble.left:after {
+  border: 8px solid transparent;
+  border-left: 8px solid #FDFDFE;
+  right: -8px;
+  border-right: none;
+}
+.quote .speech-bubble.left:before {
+  border: 10px solid transparent;
+  border-left: 10px solid #E0E8ED;
+  right: -10px;
+  border-right: none;
+}
+.quote .speech-bubble.top {
+  border: 1px solid #E0E8ED;
+  border-radius: 6px;
+  position: relative;
+  margin-top: 9px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  margin-bottom: 4px;
+  margin-bottom: 4px;
+  padding: 1ex 1em;
+  background: #FDFDFE;
+  clear: both;
+  margin-left: 0;
+  margin-top: 2ex;
+}
+.quote .speech-bubble.top:after, .quote .speech-bubble.top:before {
+  content: "";
+  display: block;
+  position: absolute;
+}
+.quote .speech-bubble.top:after {
+  left: 16px;
+}
+.quote .speech-bubble.top:before {
+  left: 14px;
+}
+.quote .speech-bubble.top:after {
+  border: 8px solid transparent;
+  border-bottom: 8px solid #FDFDFE;
+  top: -8px;
+  border-top: none;
+}
+.quote .speech-bubble.top:before {
+  border: 10px solid transparent;
+  border-bottom: 10px solid #E0E8ED;
+  top: -10px;
+  border-top: none;
+}
+.quote .speech-bubble p {
+  line-height: 1.3em;
+  margin: 0;
+}
