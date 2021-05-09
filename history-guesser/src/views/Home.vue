@@ -6,7 +6,7 @@
       a random person from history and you need to figure out
       who they are!
       <div>
-        <span class="has-text-weight-bold has-text-danger">Warning</span>: This is powered by AI.  Some answers will be off, but most will be accurate.
+        <span class="has-text-weight-bold has-text-danger">Warning</span>: This is powered by AI.  Some answers will be off, but most will contain accuracy.
       </div>
     </div>
 
