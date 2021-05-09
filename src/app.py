@@ -4,7 +4,7 @@ import json
 import random
 import openai
 import re
-# from src.database import Database
+from src.database import Database, Highscore
 
 app = Flask(__name__)
 app.secret_key = os.urandom(64)
@@ -61,19 +61,19 @@ def ask_gpt3(prompt, params=None):
         params = {
             "engine": "davinci",
             "temperature": 0.07,
-            "stop": ["\xa0Q: ", "."],
+            "stop": ["\xa0Q: ", ".", "\nQ:"],
         }
     completion = openai.Completion.create(**{"prompt": prompt}, **params)
-    response = completion.choices[0].text.replace('\nA: ', '')
+    response = completion.choices[0].text.replace('\nA:', '')
     topic = session['topic']
     name = TOPICS['topics'][topic]['name']
     response = re.sub(name, '<my name>', response, flags=re.IGNORECASE)
     return response
 
 
-# @app.before_first_request
-# def initialize_database():
-#     Database.initialize()
+@app.before_first_request
+def initialize_database():
+    Database.initialize()
 
 
 @app.route('/api/start/conversation', methods=['POST', 'GET'])
@@ -138,12 +138,17 @@ def submit_answer():
 def finish():
     topic = session['topic']
     answer = TOPICS['topics'][topic]
+    highscore = Highscore(session['username'], session['score'], answer['name'])
+    highscore.save_to_mongo()
     return json.dumps(answer)
 
 
 @app.route('/api/highscore', methods=['GET'])
 def high_score():
-    raise NotImplementedError
+    highscores = Database.find_top_n('highscores', 'score', 10)
+    d = {"scores": highscores}
+    return json.dumps(d)
+
 
 
 if __name__ == '__main__':
