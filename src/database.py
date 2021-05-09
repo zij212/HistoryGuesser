@@ -1,6 +1,7 @@
 import pymongo
 import os
 import uuid
+import time
 
 
 class Database:
@@ -14,7 +15,7 @@ class Database:
 
     @staticmethod
     def find_top_n(collection, field, n, order=-1):
-        data = Database.db[collection].find({},{'_id': False}, sort=[(field, order)]).limit(n)
+        data = Database.db[collection].find({},{'_id': False}, sort=[(field, order), ('timestamp', -1)]).limit(n)
         return [*data]
 
     @staticmethod
@@ -35,6 +36,7 @@ class Highscore:
             "score": self.score,
             "topic": self.topic,
             "_id": self._id,
+            "timestamp": time.time()
         }
 
     def save_to_mongo(self):

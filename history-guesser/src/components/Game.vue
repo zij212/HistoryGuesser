@@ -35,18 +35,33 @@
                 </span>
                 <span v-else>
                     <div class="content">
-                        <h1 v-if="time > 0">Finished!</h1>
-                        <h1 v-else>Ran out of time!</h1>
-                        <section v-if="correctCentury && correctName && correctCiv">
+                        <h2 v-if="time > 0">Finished!</h2>
+                        <h2 v-else>Ran out of time!</h2>
+                        <div v-if="correctCentury && correctName && correctCiv">
                             Awesome job!  You got all three correct.
                             <p v-if="scoreTotal != PERFECT_SCORE">You got some missed guesses though, maybe you'll get perfect next time!</p>
-                        </section>
-                        <section v-else-if="correctCentury || correctName || correctCiv">
+                        </div>
+                        <div v-else-if="correctCentury || correctName || correctCiv">
                             You got some correct, not bad!
-                        </section>
-                        <section v-else>
+                        </div>
+                        <div v-else>
                             Better luck next time!
-                        </section>
+                        </div >
+                        <h2>Solution</h2>
+                        <div>
+                            <a :href="'https://en.wikipedia.org/wiki/' + answer.names[0]" target="_blank" >
+                                <span class="has-text-weight-bold">Name</span>: <p>{{answer.names[0]}}</p>
+                            </a>
+                        </div>
+                        <div>
+                            <span class="has-text-weight-bold">Civilization</span>: <p>{{answer.countries[0]}}</p>
+                        </div>
+                        <div>
+                            <span class="has-text-weight-bold">Century</span>: <p>{{answer.century}}</p>
+                        </div>
+                        <a :href="'https://en.wikipedia.org/wiki/' + answer.names[0]" target="_blank" >
+                            <h3>Read more about {{answer.names[0]}}!</h3>
+                        </a>
                     </div>
                 </span>
 
@@ -297,7 +312,8 @@ import Bubble from '@/components/Bubble.vue';
 @Options({
   props: {
     firstMessage: String,
-    onStop: undefined
+    onStop: undefined,
+    username: String,
   },
   components: {
       Bubble,
@@ -306,11 +322,13 @@ import Bubble from '@/components/Bubble.vue';
 })
 export default class Game extends Vue {
   firstMessage!: string
-  time = 60
+  username!: string
+  time = 120
   is_typing = false
   discussion: Message[] = []
   scores: Score[] = []
   questions: string[] = []
+  answer = {}
   scoreTotal = 0
   seed = Math.random()
   waiting = false
@@ -333,9 +351,25 @@ export default class Game extends Vue {
 
   gameOver = false
 
+  doGameOver(){
+    if (!this.gameOver) {
+
+        axios.get('/api/finish').then((response:any) => {
+        console.log('/api/finish',response.data);
+        this.answer = response.data;
+        this.gameOver = true;
+        }).catch((e)=>{
+        console.log('ERROR /api/finish',e)
+        this.gameOver = true;
+        })
+    }
+
+
+  }
+
   mounted(){
       console.log('mounted');
-      this.time = 60;
+      this.time = 120;
       let interval = setInterval(()=>{
           if (!this.gameOver) {
 
@@ -343,7 +377,7 @@ export default class Game extends Vue {
             if (this.time == 0) {
                 clearInterval(interval);
                 this.timesUp();
-                this.gameOver = true;
+                this.doGameOver();
             }
           }
       },1000);
@@ -365,7 +399,7 @@ export default class Game extends Vue {
 
           // also check for end game
           if (this.correctCentury && this.correctName && this.correctCiv) {
-              this.gameOver = true;
+              this.doGameOver();
           }
       },1000);
 
@@ -373,7 +407,7 @@ export default class Game extends Vue {
       // STUB
     //   stub_server_response(this.onReply);
 
-    axios.post('/api/start/conversation', {'username': 'Human'}).then((response:any) => {
+    axios.post('/api/start/conversation', {'username': this.username}).then((response:any) => {
       console.log('/start/conversation',response.data);
       this.onReply(response.data);
     }).catch((e)=>{

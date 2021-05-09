@@ -5,11 +5,11 @@
     </router-link>
   <div id="nav">
     <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link> |
     <router-link to="/highscores">High Scores</router-link> |
+    <router-link to="/about">About</router-link> |
     <router-link to="/contact">Contact</router-link>
   </div>
-  <div class="section" style="margin-top: -3em;">
+  <div class="section" style="padding-top: 0em;">
     <router-view/>
   </div>
 </template>

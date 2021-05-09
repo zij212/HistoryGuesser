@@ -44,7 +44,7 @@ def evaluate_answer(data):
         if key == 'name':
             total_answers += 1
             for accepted_name in answer['names']:
-                if accepted_name.lower() == data['name']:
+                if accepted_name.lower().replace(' ','') == data['name'].lower().replace(' ',''):
                     reason = "Name correct"
                     correct_answers += 1
                     reward += 225
@@ -52,7 +52,7 @@ def evaluate_answer(data):
         elif key == 'country':
             total_answers += 1
             for accepted_place in answer['countries']:
-                if accepted_place.lower() == data['country']:
+                if accepted_place.lower().replace(' ','') == data['country'].lower().replace(' ',''):
                     reason = "Civilization correct"
                     correct_answers += 1
                     reward += 50
@@ -77,9 +77,7 @@ def prepare_prompt(question_selected):
     question_str = QUESTIONS['questions'][question_selected]
     topic = session['topic']
     name = TOPICS['topics'][topic]['names'][0]
-    prompt = f"""I am a friendly and intelligent chatbot. If you ask me a question about me that is rooted in truth,
-I will give you the answer. If you ask me a question that is nonsense, trickery, or has no clear 
-answer, I will respond with 'Unknown'. 
+    prompt = f"""The following is a conversation with {name}.
 
 {name}: My name is {name}.  What questions can I answer for you?
 
@@ -93,7 +91,7 @@ def ask_gpt3(prompt, params=None):
     if not params:
         params = {
             "engine": "davinci",
-            "temperature": 0.07,
+            "temperature": 0.27,
             "stop": ["\n", "."],
         }
     completion = openai.Completion.create(**{"prompt": prompt}, **params)
@@ -117,7 +115,8 @@ def start_conversation():
     username = data['username']
 
     session['username'] = username
-    session['topic'] = random.randrange(len(TOPICS))
+    session['topic'] = random.randrange(0, len(TOPICS['topics']))
+    print('PICKING', session['topic'])
     session['score'] = 0
     session['question_answered'] = []
     session['remaining_tries'] = NUM_TRIES
@@ -138,6 +137,7 @@ def ask_question():
     question_selected = session['candidate_questions'][data['question']]
     prompt = prepare_prompt(question_selected)
     gpt3_response = ask_gpt3(prompt)
+    print('>>', gpt3_response)
     session['question_answered'].append(question_selected)
     candidate_questions = get_candidate_questions()
     d = {
@@ -173,11 +173,18 @@ def submit_answer():
 def finish():
     topic = session['topic']
     answer = TOPICS['topics'][topic]
-    highscore = Highscore(session['username'], session['score'], answer['name'])
+    highscore = Highscore(session['username'], session['score'], answer['names'][0])
     highscore.save_to_mongo()
+    session.clear()
     return json.dumps(answer)
 
+def send_1():
+    return send_from_directory('../history-guesser/dist/', 'index.html')
+
 @app.route('/')
+@app.route('/about')
+@app.route('/contact')
+@app.route('/highscores')
 def send_1():
     return send_from_directory('../history-guesser/dist/', 'index.html')
 
@@ -188,7 +195,7 @@ def send_rest(path):
 
 @app.route('/api/highscore', methods=['GET'])
 def high_score():
-    highscores = Database.find_top_n('highscores', 'score', 10)
+    highscores = Database.find_top_n('highscores', 'score', 100)
     d = {"scores": highscores}
     return json.dumps(d)
 
