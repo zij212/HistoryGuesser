@@ -23,7 +23,7 @@
                 <div class="row">
 
 
-            <div class="tile is-child box" style="height:22em; width:33em; overflow-y:auto;" id="chatbox">
+            <div class="tile is-child box" style="height:23em; overflow-y:auto;" id="chatbox">
                 <span v-if="!gameOver">
                     <div>
                         <div v-for="message in discussion" :key="message.message" class="rows">
@@ -65,7 +65,7 @@
                             <span class="has-text-weight-bold">Century</span>: <p>{{answer.century}}</p>
                         </div>
                         <a :href="'https://en.wikipedia.org/wiki/' + answer.names[0]" target="_blank" >
-                            <h3>Read more about {{answer.names[0]}}!</h3>
+                            <h3 class="has-text-link-dark">Read more about {{answer.names[0]}}</h3>
                         </a>
                     </div>
                 </span>

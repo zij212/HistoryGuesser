@@ -13,7 +13,7 @@
 
   {"names":  ["Hernán Cortés", "Hernan Cortes", "Cortes", "Cortés"], "countries": ["spain", "spanish"], "century":  1500},
 
-  {"names":  ["Moctezuma II", "Moctezuma"], "countries": ["Aztecs", "aztec"], "century":  1500},
+  {"names":  ["Moctezuma II", "Moctezuma", "montezuma"], "countries": ["Aztecs", "aztec"], "century":  1500},
 
   {"names":  ["Julius Caesar", "Caesar"], "countries": ["rome", "romans"], "century":  -100},
 
