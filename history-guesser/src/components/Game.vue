@@ -18,6 +18,11 @@
 
     <div class="tile is-ancestor" style="position:relative;">
         <div class="tile is-parent">
+
+            <div class="rows">
+                <div class="row">
+
+
             <div class="tile is-child box" style="height:22em; width:33em; overflow-y:auto;" id="chatbox">
                 <span v-if="!gameOver">
                     <div>
@@ -67,6 +72,31 @@
 
             </div>
 
+                </div>
+                <div class="row" v-if="!gameOver">
+
+
+
+                    <div class="box has-background-light" style="">
+                        <div class="" v-if="!waiting">
+                        <span class="has-text-weight-semibold">Pick 1</span>:
+                        <div v-for="(question, i) in questions" :key="i" class="columns">
+                            <div class="hover is-inline" @click="ask(i)">
+                                <div class="tile is-parent ">
+                                    <article class="tile is-child notification is-light" style="border: 1px solid;">
+                                    <p class="">{{question}}</p>
+                                    </article>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <div v-else>
+                            Waiting for reply...
+                        </div>
+
+                    </div>
+                </div>
+            </div>
 
         </div>
 
@@ -166,23 +196,9 @@
 
                 <!-- <div style="height:100%; position:relative;"> -->
 
-                    <div class="box" style="position:absolute; top:24em; left:.75em; max-width:37em;">
-                        <div class="" v-if="!waiting">
-                        Ask a question from the random pool:
-                        <div v-for="(question, i) in questions" :key="i" class="columns">
-                            <div class="hover is-inline" @click="ask(i)">
-                                <div class="tile is-parent ">
-                                    <article class="tile is-child notification is-light">
-                                    <p class="">{{question}}</p>
-                                    </article>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                        <div v-else>
-                            Waiting for reply...
-                        </div>
-                    </div>
+
+                    <!-- <div class="box" style="position:absolute; top:24em; left:.75em; max-width:37em;">
+                    </div> -->
                 <!-- </div> -->
     </div>
 
@@ -354,6 +370,10 @@ export default class Game extends Vue {
   doGameOver(){
     if (!this.gameOver) {
 
+        this.disabledCentury = true;
+        this.disabledCiv= true;
+        this.disabledName= true;
+
         axios.get('/api/finish').then((response:any) => {
         console.log('/api/finish',response.data);
         this.answer = response.data;
@@ -369,7 +389,7 @@ export default class Game extends Vue {
 
   mounted(){
       console.log('mounted');
-      this.time = 120;
+      this.time = 15;
       let interval = setInterval(()=>{
           if (!this.gameOver) {
 
@@ -590,6 +610,9 @@ color: #fff;
 }
 .no-pointer{
     cursor: default;
+}
+.content h3, .content h2 {
+    margin: 20px 0 0;
 }
 </style>
 
