@@ -6,6 +6,8 @@ import re
 import openai
 from flask import Flask, request, session, send_from_directory
 
+from src.database import Database, Highscore
+
 app = Flask(__name__)
 app.secret_key = os.urandom(64)
 openai.organization = os.environ['OPENAI_API_ORG_ID']
@@ -68,15 +70,19 @@ def ask_gpt3(prompt, params=None):
             "stop": ["\n", "."],
         }
     completion = openai.Completion.create(**{"prompt": prompt}, **params)
-    print(completion)
-    response = completion.choices[0].text.replace('\nA: ', '')
+    response = completion.choices[0].text.replace('\nA:', '')
     topic = session['topic']
     name = TOPICS['topics'][topic]['name']
     response = re.sub(name, '<my name>', response, flags=re.IGNORECASE)
     return response
 
 
-@app.route('/start/conversation', methods=['POST', 'GET'])
+@app.before_first_request
+def initialize_database():
+    Database.initialize()
+
+
+@app.route('/api/start/conversation', methods=['POST', 'GET'])
 def start_conversation():
     session.clear()
 
@@ -99,14 +105,12 @@ def start_conversation():
     return json.dumps(d)
 
 
-@app.route('/ask/question', methods=['POST', 'GET'])
+@app.route('/api/ask/question', methods=['POST', 'GET'])
 def ask_question():
     data = request.get_json()
     question_selected = session['candidate_questions'][data['question']]
     prompt = prepare_prompt(question_selected)
     gpt3_response = ask_gpt3(prompt)
-    print(prompt)
-    print(gpt3_response)
     session['question_answered'].append(question_selected)
     candidate_questions = get_candidate_questions()
     d = {
@@ -114,13 +118,13 @@ def ask_question():
         # next round of questions
         "questions": candidate_questions,
         # "candidate_questions": session['candidate_questions'],
-        "question_answered": session['question_answered'],
-        "prompt": prompt
+        # "question_answered": session['question_answered'],
+        # "prompt": prompt,
     }
     return json.dumps(d)
 
 
-@app.route('/submit/answer', methods=['POST', 'GET'])
+@app.route('/api/submit/answer', methods=['POST', 'GET'])
 def submit_answer():
     data = request.get_json()
     correct, score, reward = evaluate_answer(data)
@@ -137,10 +141,12 @@ def submit_answer():
     return json.dumps(d)
 
 
-@app.route('/finish', methods=['GET'])
+@app.route('/api/finish', methods=['GET'])
 def finish():
     topic = session['topic']
     answer = TOPICS['topics'][topic]
+    highscore = Highscore(session['username'], session['score'], answer['name'])
+    highscore.save_to_mongo()
     return json.dumps(answer)
 
 @app.route('/')
@@ -150,6 +156,14 @@ def send_1():
 @app.route('/<path:path>')
 def send_rest(path):
     return send_from_directory('../history-guesser/dist/', path)
+
+
+@app.route('/api/highscore', methods=['GET'])
+def high_score():
+    highscores = Database.find_top_n('highscores', 'score', 10)
+    d = {"scores": highscores}
+    return json.dumps(d)
+
 
 
 if __name__ == '__main__':
