@@ -37,6 +37,7 @@ import { Options, Vue } from 'vue-class-component';
 import HelloWorld from '@/components/HelloWorld.vue';
 import Game from '@/components/Game.vue';
 import Bubble from '@/components/Bubble.vue';
+import axios from "axios";
 
 @Options({
   components: {
@@ -53,9 +54,13 @@ export default class Home extends Vue {
     console.log("start");
     this.loading = true;
     setTimeout(()=>{
+    // axios.post('/start/conversation', {'username': 'Human'}).then((response:any) => {
       this.playing = true;
       this.loading = false;
-    },300);
+    // }).catch((e)=>{
+      // console.log('ERROR /start/conversation',e)
+    // })
+    },200);
   }
   clickStop() {
 

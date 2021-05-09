@@ -35,7 +35,8 @@
                 </span>
                 <span v-else>
                     <div class="content">
-                        <h1>Finished!</h1>
+                        <h1 v-if="time > 0">Finished!</h1>
+                        <h1 else>Ran out of time!</h1>
                         <section v-if="correctCentury && correctName && correctCiv">
                             Awesome job!  You got all three correct.
                             <p v-if="scoreTotal != PERFECT_SCORE">You got some missed guesses though, maybe you'll get perfect next time!</p>
@@ -182,47 +183,48 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import axios from "axios";
 // import Bubble from './Bubble'
 
-let STUB_SCORES = [
-    {"reward": -10, "reason": "Wrong guess"},
-    {"reward": -10, "reason": "Wrong guess"},
-    {"reward": -10, "reason": "Wrong guess"},
-    {"reward": -10, "reason": "Wrong guess"},
-    {"reward": -10, "reason": "Wrong guess"},
-    {"reward": -10, "reason": "Wrong guess"},
-    {"reward": -10, "reason": "Wrong guess"},
-    {"reward": 75, "reason": "Correct century"},
-    {"reward": 50, "reason": "Correct civilization"},
-    {"reward": 225, "reason": "Correct person"},
-];
-let STUB_QUESTIONS = [
-"What is your favorite food?",
-"What's on the other side of the ocean?",
-"Would you accept a dual?",
-"Did you visit england?",
-"Do you know about gunpowder?",
-"Have you ever been to england?",
-"Do you know how to read the temperature in celsius?",
-"Do you like protestantism?",
-"Where was your biggest victory?",
-"Where was your favorite place to travel to?",
-"What do you do in your spare time?",
-"Who is your favorite king?",
-"Who is your favorite queen?",
-"Do you have any children?",
-"What is your opinion on exploration?",
-"Did you know how to use a sword?",
-"Who is your best ally?",
-"Where did you die?",
-"Do you have a spouse?",
-"Where was your biggest defeat?",
-"What do you think about philosophy?",
-"Do you like Catholicism",
-"Do you like Taoism?",
-"Is the earth flat?",
-"Do you know calculus?",
-];
+// let STUB_SCORES = [
+//     {"reward": -10, "reason": "Wrong guess"},
+//     {"reward": -10, "reason": "Wrong guess"},
+//     {"reward": -10, "reason": "Wrong guess"},
+//     {"reward": -10, "reason": "Wrong guess"},
+//     {"reward": -10, "reason": "Wrong guess"},
+//     {"reward": -10, "reason": "Wrong guess"},
+//     {"reward": -10, "reason": "Wrong guess"},
+//     {"reward": 75, "reason": "Correct century"},
+//     {"reward": 50, "reason": "Correct civilization"},
+//     {"reward": 225, "reason": "Correct person"},
+// ];
+// let STUB_QUESTIONS = [
+// "What is your favorite food?",
+// "What's on the other side of the ocean?",
+// "Would you accept a dual?",
+// "Did you visit england?",
+// "Do you know about gunpowder?",
+// "Have you ever been to england?",
+// "Do you know how to read the temperature in celsius?",
+// "Do you like protestantism?",
+// "Where was your biggest victory?",
+// "Where was your favorite place to travel to?",
+// "What do you do in your spare time?",
+// "Who is your favorite king?",
+// "Who is your favorite queen?",
+// "Do you have any children?",
+// "What is your opinion on exploration?",
+// "Did you know how to use a sword?",
+// "Who is your best ally?",
+// "Where did you die?",
+// "Do you have a spouse?",
+// "Where was your biggest defeat?",
+// "What do you think about philosophy?",
+// "Do you like Catholicism",
+// "Do you like Taoism?",
+// "Is the earth flat?",
+// "Do you know calculus?",
+// ];
 function randomChoice(arr: any[]): any {
     return arr[Math.floor(arr.length * Math.random())];
 }
@@ -266,28 +268,28 @@ class Score {
     }
 }
 
-function stub_server_score(_anser:any, cb:any): void{
-    setTimeout(()=>{
-        var questions: any[] = [];
-        var response = randomChoice(STUB_SCORES);
-        cb(response);
-    },500);
-}
+// function stub_server_score(_anser:any, cb:any): void{
+//     setTimeout(()=>{
+//         var questions: any[] = [];
+//         var response = randomChoice(STUB_SCORES);
+//         cb(response);
+//     },500);
+// }
 
-function stub_server_response(cb:any): void{
-    setTimeout(()=>{
-        var response:any = {};
-        var questions: any[] = [];
-        questions.push(randomChoice(STUB_QUESTIONS));
-        questions.push(randomChoice(STUB_QUESTIONS));
-        questions.push(randomChoice(STUB_QUESTIONS));
-        questions.push(randomChoice(STUB_QUESTIONS));
-        questions.push(randomChoice(STUB_QUESTIONS));
-        response['questions'] = questions;
-        response['reply'] = "I reply " + Math.random();
-        cb(response);
-    },500);
-}
+// function stub_server_response(cb:any): void{
+//     setTimeout(()=>{
+//         var response:any = {};
+//         var questions: any[] = [];
+//         questions.push(randomChoice(STUB_QUESTIONS));
+//         questions.push(randomChoice(STUB_QUESTIONS));
+//         questions.push(randomChoice(STUB_QUESTIONS));
+//         questions.push(randomChoice(STUB_QUESTIONS));
+//         questions.push(randomChoice(STUB_QUESTIONS));
+//         response['questions'] = questions;
+//         response['reply'] = "I reply " + Math.random();
+//         cb(response);
+//     },500);
+// }
 
 import Slider from '@/components/Slider.vue';
 import Bubble from '@/components/Bubble.vue';
@@ -369,7 +371,15 @@ export default class Game extends Vue {
 
       this.is_typing = true;
       // STUB
-      stub_server_response(this.onReply);
+    //   stub_server_response(this.onReply);
+
+    axios.post('/start/conversation', {'username': 'Human'}).then((response:any) => {
+      console.log('/start/conversation',response.data);
+      this.onReply(response.data);
+    }).catch((e)=>{
+      console.log('ERROR /start/conversation',e)
+    })
+
 
   }
 
@@ -402,13 +412,22 @@ export default class Game extends Vue {
       var element = document.getElementById("chatbox");
       if (element) element.scrollTop = element.scrollHeight
 
-      stub_server_response(this.onReply);
+    //   stub_server_response(this.onReply);
+        axios.post('/ask/question', {'question': index}).then((response:any) => {
+            console.log('/start/conversation',response.data);
+            this.onReply(response.data);
+        }).catch((e)=>{
+            console.log('ERROR /start/conversation',e)
+        })
+
+
+
 
   }
 
   onReply(response:any){
       this.onNewQuestions(response.questions);
-      this.discussion.push(new Message(response.reply, "AI"));
+      this.discussion.push(new Message(response.response, "AI"));
       this.waiting =false;
       this.is_typing = false;
       var element = document.getElementById("chatbox");
@@ -463,7 +482,7 @@ export default class Game extends Vue {
       }
   }
   guessName() {
-      var input = document.getElementById('civInput');
+      var input = document.getElementById('nameInput');
       if (input) {
         var name= (input as HTMLInputElement).value;
         if (!name) {
@@ -486,11 +505,13 @@ export default class Game extends Vue {
   }
 
   submitAnswer(answer: any, cb:(success: boolean) => void) {
-      stub_server_score(answer, (res:any)=>{
+
+    axios.post('/submit/answer', answer).then((res:any) => {
+        console.log("/submit/answer", answer);
           if (res.reward < 0) {
-              cb(false);
+            cb(false);
           } else {
-              cb(true);
+            cb(true);
           }
           console.log(res);
           this.scores.push(new Score(res.reason, res.reward));
@@ -499,7 +520,11 @@ export default class Game extends Vue {
               total += this.scores[i].score;
           }
           this.scoreTotal = total;
-      })
+    }).catch((e)=>{
+        console.log('ERROR /submit/answer',e)
+    })
+
+   //   })
   }
 
 

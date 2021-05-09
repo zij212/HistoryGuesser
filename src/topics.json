@@ -1,5 +1,5 @@
 {"topics": [
-  {"name":  "madame curie", "country": "france", "century":  1900},
-  {"name":  "genghis khan", "country": "mongolia", "century":  1100},
-  {"name":  "sigmund freud", "country": "austria", "century":  1800}
+  {"name":  "Marie Curie", "country": "france", "century":  1900},
+  {"name":  "Genghis Khan", "country": "mongolia", "century":  1100},
+  {"name":  "Sigmund Freud", "country": "austria", "century":  1800}
 ]}

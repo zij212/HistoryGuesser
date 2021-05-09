@@ -1,10 +1,10 @@
-from flask import Flask, request, session
 import os
 import json
 import random
-import openai
 import re
 
+import openai
+from flask import Flask, request, session, send_from_directory
 
 app = Flask(__name__)
 app.secret_key = os.urandom(64)
@@ -49,10 +49,14 @@ def prepare_prompt(question_selected):
     question_str = QUESTIONS['questions'][question_selected]
     topic = session['topic']
     name = TOPICS['topics'][topic]['name']
-    prompt = "I am a friendly and intelligent chatbot. If you ask me a question about me that is rooted in truth, " \
-             "I will give you the answer. If you ask me a question that is nonsense, trickery, or has no clear " \
-             "answer, I will respond with 'Unknown'. " \
-             f"\nQ:{name}, {question_str}"
+    prompt = f"""I am a friendly and intelligent chatbot. If you ask me a question about me that is rooted in truth,
+I will give you the answer. If you ask me a question that is nonsense, trickery, or has no clear 
+answer, I will respond with 'Unknown'. 
+
+{name}: My name is {name}.  What questions can I answer for you?
+
+Human: {name}, {question_str}
+{name}:"""
     return prompt
 
 
@@ -61,7 +65,7 @@ def ask_gpt3(prompt, params=None):
         params = {
             "engine": "davinci",
             "temperature": 0.07,
-            "stop": ["\xa0Q: ", "."],
+            "stop": ["\n", "."],
         }
     completion = openai.Completion.create(**{"prompt": prompt}, **params)
     print(completion)
@@ -88,7 +92,8 @@ def start_conversation():
     candidate_questions = get_candidate_questions()
     d = {
         "questions": candidate_questions,
-        "hint": "blah",
+        # Putting the "initial" censored response
+        "response": "My name is ___________.  What questions can I answer for you?",
         "questions_answered": session['question_answered']
     }
     return json.dumps(d)
@@ -137,6 +142,14 @@ def finish():
     topic = session['topic']
     answer = TOPICS['topics'][topic]
     return json.dumps(answer)
+
+@app.route('/')
+def send_1():
+    return send_from_directory('../history-guesser/dist/', 'index.html')
+
+@app.route('/<path:path>')
+def send_rest(path):
+    return send_from_directory('../history-guesser/dist/', path)
 
 
 if __name__ == '__main__':
