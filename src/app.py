@@ -4,7 +4,7 @@ import json
 import random
 import openai
 import re
-
+# from src.database import Database
 
 app = Flask(__name__)
 app.secret_key = os.urandom(64)
@@ -64,7 +64,6 @@ def ask_gpt3(prompt, params=None):
             "stop": ["\xa0Q: ", "."],
         }
     completion = openai.Completion.create(**{"prompt": prompt}, **params)
-    print(completion)
     response = completion.choices[0].text.replace('\nA: ', '')
     topic = session['topic']
     name = TOPICS['topics'][topic]['name']
@@ -72,7 +71,12 @@ def ask_gpt3(prompt, params=None):
     return response
 
 
-@app.route('/start/conversation', methods=['POST', 'GET'])
+# @app.before_first_request
+# def initialize_database():
+#     Database.initialize()
+
+
+@app.route('/api/start/conversation', methods=['POST', 'GET'])
 def start_conversation():
     session.clear()
 
@@ -89,19 +93,17 @@ def start_conversation():
     d = {
         "questions": candidate_questions,
         "hint": "blah",
-        "questions_answered": session['question_answered']
+        # "questions_answered": session['question_answered'],
     }
     return json.dumps(d)
 
 
-@app.route('/ask/question', methods=['POST', 'GET'])
+@app.route('/api/ask/question', methods=['POST', 'GET'])
 def ask_question():
     data = request.get_json()
     question_selected = session['candidate_questions'][data['question']]
     prompt = prepare_prompt(question_selected)
     gpt3_response = ask_gpt3(prompt)
-    print(prompt)
-    print(gpt3_response)
     session['question_answered'].append(question_selected)
     candidate_questions = get_candidate_questions()
     d = {
@@ -109,13 +111,13 @@ def ask_question():
         # next round of questions
         "questions": candidate_questions,
         # "candidate_questions": session['candidate_questions'],
-        "question_answered": session['question_answered'],
-        "prompt": prompt
+        # "question_answered": session['question_answered'],
+        # "prompt": prompt,
     }
     return json.dumps(d)
 
 
-@app.route('/submit/answer', methods=['POST', 'GET'])
+@app.route('/api/submit/answer', methods=['POST', 'GET'])
 def submit_answer():
     data = request.get_json()
     correct, score, reward = evaluate_answer(data)
@@ -132,11 +134,16 @@ def submit_answer():
     return json.dumps(d)
 
 
-@app.route('/finish', methods=['GET'])
+@app.route('/api/finish', methods=['GET'])
 def finish():
     topic = session['topic']
     answer = TOPICS['topics'][topic]
     return json.dumps(answer)
+
+
+@app.route('/api/highscore', methods=['GET'])
+def high_score():
+    raise NotImplementedError
 
 
 if __name__ == '__main__':
