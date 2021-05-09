@@ -18,8 +18,6 @@ with open('./topics.json') as f:
 with open('./questions.json') as f:
     QUESTIONS = json.load(f)
 NUM_TRIES = 5
-PENALTY = {'name': 30, 'country': 20, 'century': 10}
-REWARD = {'name': 100, 'country': 80, 'century': 50}
 
 
 def get_candidate_questions():
@@ -37,20 +35,48 @@ def evaluate_answer(data):
     topic = session['topic']
     answer = TOPICS['topics'][topic]
 
-    assert len(data) == 1
-    k, v = list(*data.items())
+    reward = 0
+    correct_answers = 0
+    total_answers = 0
 
-    if answer[k].lower() == str(v).lower():
-        session['score'] += REWARD[k]
-        return True, session['score'], REWARD[k]
-    session['score'] -= PENALTY[k]
-    return False, session['score'], -PENALTY[k]
+    reason = "Incorrect guess"
+    for key in data.keys():
+        if key == 'name':
+            total_answers += 1
+            for accepted_name in answer['names']:
+                if accepted_name.lower() == data['name']:
+                    reason = "Name correct"
+                    correct_answers += 1
+                    reward += 225
+                    break
+        elif key == 'country':
+            total_answers += 1
+            for accepted_place in answer['countries']:
+                if accepted_place.lower() == data['country']:
+                    reason = "Civilization correct"
+                    correct_answers += 1
+                    reward += 50
+                    break
+        elif key == 'century':
+            total_answers += 1
+            if answer['century'] == data['century']:
+                correct_answers += 1
+                reason = "Century correct"
+                reward += 75
+
+    # negative 10 points for wrong guesses
+    reward += (-10 * (total_answers - correct_answers))
+
+
+    session['score'] += reward
+
+    return False, session['score'], reward, reason
 
 
 def prepare_prompt(question_selected):
     question_str = QUESTIONS['questions'][question_selected]
     topic = session['topic']
-    name = TOPICS['topics'][topic]['name']
+    name = TOPICS['topics'][topic]['names'][0]
     prompt = f"""I am a friendly and intelligent chatbot. If you ask me a question about me that is rooted in truth,
 I will give you the answer. If you ask me a question that is nonsense, trickery, or has no clear 
 answer, I will respond with 'Unknown'. 
@@ -59,6 +85,7 @@ answer, I will respond with 'Unknown'.
 
 Human: {name}, {question_str}
 {name}:"""
+    print('PROMPT:\n',prompt)
     return prompt
 
 
@@ -72,7 +99,7 @@ def ask_gpt3(prompt, params=None):
     completion = openai.Completion.create(**{"prompt": prompt}, **params)
     response = completion.choices[0].text.replace('\nA:', '')
     topic = session['topic']
-    name = TOPICS['topics'][topic]['name']
+    name = TOPICS['topics'][topic]['names'][0]
     response = re.sub(name, '<my name>', response, flags=re.IGNORECASE)
     return response
 
@@ -91,7 +118,7 @@ def start_conversation():
 
     session['username'] = username
     session['topic'] = random.randrange(len(TOPICS))
-    session['score'] = 100
+    session['score'] = 0
     session['question_answered'] = []
     session['remaining_tries'] = NUM_TRIES
 
@@ -127,7 +154,7 @@ def ask_question():
 @app.route('/api/submit/answer', methods=['POST', 'GET'])
 def submit_answer():
     data = request.get_json()
-    correct, score, reward = evaluate_answer(data)
+    correct, score, reward, reason = evaluate_answer(data)
     if correct:
         session['remaining_tries'] = 0
     else:
@@ -136,7 +163,8 @@ def submit_answer():
         "correct": correct,
         "remaining-tries": session['remaining_tries'],
         "score": score,
-        "reward": reward
+        "reward": reward,
+        "reason": reason
     }
     return json.dumps(d)
 

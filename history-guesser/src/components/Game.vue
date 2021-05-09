@@ -36,7 +36,7 @@
                 <span v-else>
                     <div class="content">
                         <h1 v-if="time > 0">Finished!</h1>
-                        <h1 else>Ran out of time!</h1>
+                        <h1 v-else>Ran out of time!</h1>
                         <section v-if="correctCentury && correctName && correctCiv">
                             Awesome job!  You got all three correct.
                             <p v-if="scoreTotal != PERFECT_SCORE">You got some missed guesses though, maybe you'll get perfect next time!</p>
@@ -373,7 +373,7 @@ export default class Game extends Vue {
       // STUB
     //   stub_server_response(this.onReply);
 
-    axios.post('/start/conversation', {'username': 'Human'}).then((response:any) => {
+    axios.post('/api/start/conversation', {'username': 'Human'}).then((response:any) => {
       console.log('/start/conversation',response.data);
       this.onReply(response.data);
     }).catch((e)=>{
@@ -413,7 +413,7 @@ export default class Game extends Vue {
       if (element) element.scrollTop = element.scrollHeight
 
     //   stub_server_response(this.onReply);
-        axios.post('/ask/question', {'question': index}).then((response:any) => {
+        axios.post('/api/ask/question', {'question': index}).then((response:any) => {
             console.log('/start/conversation',response.data);
             this.onReply(response.data);
         }).catch((e)=>{
@@ -506,15 +506,15 @@ export default class Game extends Vue {
 
   submitAnswer(answer: any, cb:(success: boolean) => void) {
 
-    axios.post('/submit/answer', answer).then((res:any) => {
+    axios.post('/api/submit/answer', answer).then((res:any) => {
         console.log("/submit/answer", answer);
-          if (res.reward < 0) {
+          if (res.data.reward < 0) {
             cb(false);
           } else {
             cb(true);
           }
-          console.log(res);
-          this.scores.push(new Score(res.reason, res.reward));
+          console.log(res.data);
+          this.scores.push(new Score(res.data.reason, res.data.reward));
           var total = 0;
           for (var i = 0; i < this.scores.length; i++) {
               total += this.scores[i].score;
