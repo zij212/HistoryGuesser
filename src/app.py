@@ -202,4 +202,5 @@ def high_score():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    # set FLASK_ENV=development  to enable debug (safer)
+    app.run(port=5000)
