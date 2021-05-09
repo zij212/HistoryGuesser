@@ -1,10 +1,15 @@
 from flask import Flask, request, session
+import os
 import json
 import random
+import openai
+import re
+
 
 app = Flask(__name__)
-# TODO move secret key out
-app.secret_key = 'x1q5VK$**haH45aVgbsm#NIJUs6tU0Hj4HG*0duMMGB2'
+app.secret_key = os.urandom(64)
+openai.organization = os.environ['OPENAI_API_ORG_ID']
+openai.api_key = os.environ['OPENAI_API_KEY']
 
 with open('./topics.json') as f:
     TOPICS = json.load(f)
@@ -26,44 +31,6 @@ def get_candidate_questions():
     return [QUESTIONS['questions'][idx] for idx in candidate_questions]
 
 
-@app.route('/start/conversation', methods=['POST', 'GET'])
-def start_conversation():
-    session.clear()
-    data = request.get_json()
-    username = data['username']
-    # TODO choose a topic
-    session['topic'] = 1
-
-    session['score'] = 100
-    session['question_answered'] = []
-    session['remaining_tries'] = NUM_TRIES
-    candidate_questions = get_candidate_questions()
-    d = {
-        "questions": candidate_questions,
-        "hint": "blah",
-        "questions_answered": session['question_answered']
-    }
-    return json.dumps(d)
-
-
-@app.route('/ask/question', methods=['POST', 'GET'])
-def ask_question():
-    data = request.get_json()
-    question_asked = session['candidate_questions'][data['question']]
-    # TODO ask gpt-3 to answer <QUESTIONS['questions'][question_asked]> in context of <session['topic']>
-    gpt3_response = "A" + QUESTIONS['questions'][question_asked]
-    session['question_answered'].append(question_asked)
-    candidate_questions = get_candidate_questions()
-    d = {
-        "response": gpt3_response,
-        # next round of questions
-        "questions": candidate_questions,
-        # "candidate_questions": session['candidate_questions'],
-        "question_answered": session['question_answered']
-    }
-    return json.dumps(d)
-
-
 def evaluate_answer(data):
     topic = session['topic']
     answer = TOPICS['topics'][topic]
@@ -76,6 +43,76 @@ def evaluate_answer(data):
         return True, session['score'], REWARD[k]
     session['score'] -= PENALTY[k]
     return False, session['score'], -PENALTY[k]
+
+
+def prepare_prompt(question_selected):
+    question_str = QUESTIONS['questions'][question_selected]
+    topic = session['topic']
+    name = TOPICS['topics'][topic]['name']
+    prompt = "I am a friendly and intelligent chatbot. If you ask me a question about me that is rooted in truth, " \
+             "I will give you the answer. If you ask me a question that is nonsense, trickery, or has no clear " \
+             "answer, I will respond with 'Unknown'. " \
+             f"\nQ:{name}, {question_str}"
+    return prompt
+
+
+def ask_gpt3(prompt, params=None):
+    if not params:
+        params = {
+            "engine": "davinci",
+            "temperature": 0.07,
+            "stop": ["\xa0Q: ", "."],
+        }
+    completion = openai.Completion.create(**{"prompt": prompt}, **params)
+    print(completion)
+    response = completion.choices[0].text.replace('\nA: ', '')
+    topic = session['topic']
+    name = TOPICS['topics'][topic]['name']
+    response = re.sub(name, '<my name>', response, flags=re.IGNORECASE)
+    return response
+
+
+@app.route('/start/conversation', methods=['POST', 'GET'])
+def start_conversation():
+    session.clear()
+
+    data = request.get_json()
+    username = data['username']
+
+    session['username'] = username
+    session['topic'] = random.randrange(len(TOPICS))
+    session['score'] = 100
+    session['question_answered'] = []
+    session['remaining_tries'] = NUM_TRIES
+
+    candidate_questions = get_candidate_questions()
+    d = {
+        "questions": candidate_questions,
+        "hint": "blah",
+        "questions_answered": session['question_answered']
+    }
+    return json.dumps(d)
+
+
+@app.route('/ask/question', methods=['POST', 'GET'])
+def ask_question():
+    data = request.get_json()
+    question_selected = session['candidate_questions'][data['question']]
+    prompt = prepare_prompt(question_selected)
+    gpt3_response = ask_gpt3(prompt)
+    print(prompt)
+    print(gpt3_response)
+    session['question_answered'].append(question_selected)
+    candidate_questions = get_candidate_questions()
+    d = {
+        "response": gpt3_response,
+        # next round of questions
+        "questions": candidate_questions,
+        # "candidate_questions": session['candidate_questions'],
+        "question_answered": session['question_answered'],
+        "prompt": prompt
+    }
+    return json.dumps(d)
 
 
 @app.route('/submit/answer', methods=['POST', 'GET'])
