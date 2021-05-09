@@ -389,7 +389,7 @@ export default class Game extends Vue {
 
   mounted(){
       console.log('mounted');
-      this.time = 15;
+      this.time = 120;
       let interval = setInterval(()=>{
           if (!this.gameOver) {
 
