@@ -20,7 +20,7 @@
       >Loading</button>
   </div>
   <div v-else>
-    <Game firstMessage="My name is ________.  What questions can I answer for you?" />
+    <Game firstMessage="My name is ________.  What questions can I answer for you?" :onStop="clickStop"/>
   </div>
   </container>
 </template>
@@ -56,6 +56,11 @@ export default class Home extends Vue {
       this.playing = true;
       this.loading = false;
     },300);
+  }
+  clickStop() {
+
+      this.loading = false;
+      this.playing= false;
   }
 }
 </script>

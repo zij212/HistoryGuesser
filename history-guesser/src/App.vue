@@ -1,7 +1,7 @@
 <template>
 
     <router-link to="/">
-      <img src="@/assets/hg-small.png">
+      <img src="@/assets/hg-small.png" width="128">
     </router-link>
   <div id="nav">
     <router-link to="/">Home</router-link> |
@@ -9,7 +9,7 @@
     <router-link to="/highscores">High Scores</router-link> |
     <router-link to="/contact">Contact</router-link>
   </div>
-  <div class="section">
+  <div class="section" style="margin-top: -3em;">
     <router-view/>
   </div>
 </template>
