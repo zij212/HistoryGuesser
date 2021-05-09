@@ -1,5 +1,5 @@
 {"topics": [
-  {"name":  "n1", "country": "c1", "century":  1},
-  {"name":  "n2", "country": "c2", "century":  2},
-  {"name":  "n3", "country": "c3", "century":  3}
+  {"name":  "madame curie", "country": "france", "century":  1900},
+  {"name":  "genghis khan", "country": "mongolia", "century":  1100},
+  {"name":  "sigmund freud", "country": "austria", "century":  1800}
 ]}
