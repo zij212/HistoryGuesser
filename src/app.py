@@ -6,7 +6,7 @@ import re
 import openai
 from flask import Flask, request, session, send_from_directory
 
-from src.database import Database, Highscore
+from database import Database, Highscore
 
 app = Flask(__name__)
 app.secret_key = os.urandom(64)
