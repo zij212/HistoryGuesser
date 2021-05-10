@@ -8,7 +8,7 @@ import openai
 from flask import Flask, request, session, send_from_directory, Response
 
 from database import Database, Highscore
-from util import liberal_compare
+from util import liberal_compare, year2century
 
 app = Flask(__name__)
 app.secret_key = os.urandom(64)
@@ -85,7 +85,7 @@ def prepare_prompt(question, topic):
 
 {name}: My name is {name}.  What questions can I answer for you?
 
-Human: {name}, around year {century}{BC}, {question}
+Human: {name}, around {year2century(century)}, {question}
 {name}:"""
     return prompt
 
@@ -97,7 +97,8 @@ def ask_gpt3(prompt, topic, params=None):
         params = {
             "engine": "davinci",
             "temperature": 0.27,
-            "frequency_penalty": 0.10,
+            "frequency_penalty": 0.25,
+            "max_tokens": 64,
             "stop": [
                 "\nHuman", 
                 # f"\n{name}",
@@ -109,10 +110,21 @@ def ask_gpt3(prompt, topic, params=None):
     if century < 0:
         BC = ' BC'
 
+    response = re.sub(name + ':', '', response, flags=re.IGNORECASE)
     response = re.sub(name, '<my name>', response, flags=re.IGNORECASE)
-    response = re.sub(f'the year {century}{BC}', 'my time', response, flags=re.IGNORECASE)
-    response = re.sub(f'year {century}{BC}', 'my time', response, flags=re.IGNORECASE)
-    response = re.sub(f'{century}{BC}', 'my time', response, flags=re.IGNORECASE)
+    response = re.sub(f'the {year2century(century)}', 'my time', response, flags=re.IGNORECASE)
+    response = re.sub(f'{year2century(century)}', 'my time', response, flags=re.IGNORECASE)
+
+    # Fix a rare case where response truncates and reveals the name
+    response = response.split('\n')
+    last_item = response[-1]
+    try:
+        if name.index(last_item) == 0:
+            response.pop()
+    except:
+        pass
+    response = '\n'.join(response)
+
     return response
 
 

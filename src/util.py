@@ -28,16 +28,22 @@ def liberal_compare(name1, name2):
     name1 = unidecode.unidecode(name1)
     name2 = unidecode.unidecode(name2)
 
+    ignore_list = (
+        'of', 'the', 'in', 'queen', 'king', 'sir',
+        'I', 
+        # "II", "III", "IV", "V", "VI","VII", "VIII",
+    )
+
     options1 = []
     options2 = []
     for option in name1.split(' '):
-        if option not in ('of', 'the', 'in',):
+        if option not in ignore_list:
             options1.append(option)
             if len(options1) > 4:
                 break
 
     for option in name2.split(' '):
-        if option not in ('of', 'the', 'in',):
+        if option not in ignore_list:
             options2.append(option)
             if len(options2) > 4:
                 break
@@ -56,3 +62,34 @@ assert liberal_compare('Peter the great', 'peter')
 assert liberal_compare('Peter great', 'peter the great')
 assert not liberal_compare('the', 'peter the great')
 assert liberal_compare('the greatt', 'peter the great')
+assert liberal_compare('queen elizabeth', 'elizabeth I')
+assert not liberal_compare('elizabeth', 'peter the great')
+assert not liberal_compare('queen elizabeth', 'queen')
+
+# convert 100 to "2nd century"
+# convert -100 to "2nd century BC"
+def year2century(year):
+    is_bc = year < 0
+    number = abs((abs(year)- (1 * is_bc))//100) + 1
+
+    if number == 1:
+        sth = 'st'
+    elif number == 2:
+        sth = 'nd'
+    elif number == 3:
+        sth = 'rd'
+    else:
+        sth = 'th'
+
+    century = f'{number}{sth} century'
+    if is_bc:
+        century = century + ' BC'
+    # print(century)
+    return century
+
+assert year2century(-200) == '2nd century BC'
+assert year2century(-100) == '1st century BC'
+assert year2century(0) == '1st century'
+assert year2century(100) == '2nd century'
+assert year2century(200) == '3rd century'
+assert year2century(300) == '4th century'
