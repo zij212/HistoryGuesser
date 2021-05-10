@@ -18,7 +18,7 @@
   {"names":  ["Julius Caesar", "Caesar"], "countries": ["rome", "romans"], "century":  -100},
 
   {"names":  ["Aristotle"], "countries": ["greece"], "century":  -300},
-  {"names":  ["Leonardo da Vinci", "leonardo", "da Vinci"], "countries": ["greece","greek"], "century":  -300},
+  {"names":  ["Leonardo da Vinci", "leonardo", "da Vinci"], "countries": ["greece","greek"], "century":  1500},
   {"names":  ["Alexander the Great", "Alexander III"], "countries": ["greece","greek"], "century":  -300},
 
   {"names":  ["Queen Elizabeth", "Queen Elizabeth I", "Elizabeth"], "countries": ["british","english", "england", "britain"], "century":  1500},
@@ -30,12 +30,9 @@
   {"names":  ["Henry Kissinger","Kissinger", "Henry Kissenger"], "countries": ["US", "america", "u.s."], "century":  1900},
   {"names":  ["George Washington", "washington"], "countries": ["us","america","u.s."], "century":  1700},
   {"names":  ["Abraham Lincoln", "Lincoln"], "countries": ["us","america","u.s."], "century":  1800},
-  {"names":  ["Toni Morrison", "Morrison"], "countries": ["us","america","u.s."], "century":  1900},
   {"names":  ["Ruth Bader Ginsburg", "RBG", "Ginsburg", "ruth"], "countries": ["us","america","u.s."], "century":  1900},
 
   {"names":  ["Jacques Cartier", "Cartier"], "countries": ["canada","canadian"], "century":  1500},
-
-  {"names":  ["Aung San Suu Kyi", "Kyi", "Suu Kyi", "Aung san"], "countries": ["Myanmar","burma","burmese","Myanmarese"], "century":  1900},
 
   {"names":  ["Cao Cao", "mengde"], "countries": ["China","chinese"], "century":  200},
   {"names":  ["Mao Zedong", "mao"], "countries": ["China","chinese"], "century":  1900},

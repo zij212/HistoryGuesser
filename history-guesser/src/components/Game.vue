@@ -24,7 +24,7 @@
 
 
             <div class="tile is-child box" style="height:23em; overflow-y:auto;" id="chatbox">
-                <span v-if="!gameOver">
+                <span v-if="!gameOver || goBack">
                     <div>
                         <div v-for="message in discussion" :key="message.message" class="rows">
                             <div class="row is-full">
@@ -40,8 +40,16 @@
                 </span>
                 <span v-else>
                     <div class="content">
-                        <h2 v-if="time > 0">Finished!</h2>
-                        <h2 v-else>Ran out of time!</h2>
+                        <div class="columns is-desktop is-vcentered">
+                            <div class="column">
+                                <h2 v-if="time > 0">Finished!</h2>
+                                <h2 v-else>Ran out of time!</h2>
+
+                            </div>
+                            <div class="column">
+                                <button class="button" v-on:click="goBack = true">Go back</button>
+                            </div>
+                        </div>
                         <div v-if="correctCentury && correctName && correctCiv">
                             Awesome job!  You got all three correct.
                             <p v-if="scoreTotal != PERFECT_SCORE">You got some missed guesses though, maybe you'll get perfect next time!</p>
@@ -55,14 +63,14 @@
                         <h2>Solution</h2>
                         <div>
                             <a :href="'https://en.wikipedia.org/wiki/' + answer.names[0]" target="_blank" >
-                                <span class="has-text-weight-bold">Name</span>: <p>{{answer.names[0]}}</p>
+                                <span class="has-text-weight-bold">Name</span>: <span>{{answer.names[0]}}</span>
                             </a>
                         </div>
                         <div>
-                            <span class="has-text-weight-bold">Civilization</span>: <p>{{answer.countries[0]}}</p>
+                            <span class="has-text-weight-bold">Civilization</span>: <span>{{answer.countries[0]}}</span>
                         </div>
                         <div>
-                            <span class="has-text-weight-bold">Century</span>: <p>{{answer.century}}</p>
+                            <span class="has-text-weight-bold">Century</span>: <span>{{answer.century}}</span>
                         </div>
                         <a :href="'https://en.wikipedia.org/wiki/' + answer.names[0]" target="_blank" >
                             <h3 class="has-text-link-dark">Read more about {{answer.names[0]}}</h3>
@@ -128,7 +136,9 @@
                     <div class="field">
                         <label class="label">What was the person's civilization or nationality?</label>
                         <div class="control">
-                            <input :disabled="disabledCiv" id="civInput" class="input" type="text" placeholder="Enter your guess"  :class="{'shake' : animatedCiv}">
+                            <input :disabled="disabledCiv" id="civInput" class="input" type="text" placeholder="Enter your guess"  
+                            v-on:keyup.enter="guessCiv"
+                            :class="{'shake' : animatedCiv}">
                         </div>
                     </div>
                 </div>
@@ -145,7 +155,9 @@
                     <div class="field">
                         <label class="label">What is the person's name?</label>
                         <div class="control">
-                            <input :disabled="disabledName" class="input" id="nameInput" type="text" placeholder="Enter your guess"   :class="{'shake' : animatedName}">
+                            <input :disabled="disabledName" class="input" id="nameInput" type="text" placeholder="Enter your guess"   
+                            v-on:keyup.enter="guessName"
+                            :class="{'shake' : animatedName}">
                         </div>
                     </div>
 
@@ -164,7 +176,7 @@
             </div>
             <div class="tile is-child box">
                 <p class="title">Points</p>
-                <div class="rows" >
+                <div class="rows" style="width:100%;">
                     <span v-for="score in scores" :key="score.timestamp">
 
                     <div class="row">
@@ -366,6 +378,7 @@ export default class Game extends Vue {
   correctCentury = false
 
   gameOver = false
+  goBack = false
 
   doGameOver(){
     if (!this.gameOver) {
@@ -465,6 +478,10 @@ export default class Game extends Vue {
 
       var element = document.getElementById("chatbox");
       if (element) element.scrollTop = element.scrollHeight
+
+      setTimeout(()=>{
+        if (element) element.scrollTop = element.scrollHeight
+      },20);
 
     //   stub_server_response(this.onReply);
         axios.post('/api/ask/question', {'question': index}).then((response:any) => {

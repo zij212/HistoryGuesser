@@ -16,3 +16,20 @@ export DBUSER=<your-db-username>
 export URI=<your-db-uri>
 cd src && python3 app.py
 ```
+
+## Testing questions
+
+You can test questions like this.
+
+```
+# Run five tests
+python3 test.py 5 "Did you know how to use a sword?"
+```
+
+```
+Nelson Mandela:  Yes, I did.
+Rene Descartes:  I did not know how to use a sword. 
+Henry VIII:  Yes, I was a good swordsman.
+Toni Morrison:  Yes, I did.
+Abraham Lincoln:  Yes, I did.
+```

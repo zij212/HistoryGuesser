@@ -3,10 +3,12 @@ import json
 import random
 import re
 
+import requests
 import openai
-from flask import Flask, request, session, send_from_directory
+from flask import Flask, request, session, send_from_directory, Response
 
 from database import Database, Highscore
+from util import liberal_compare
 
 app = Flask(__name__)
 app.secret_key = os.urandom(64)
@@ -44,7 +46,7 @@ def evaluate_answer(data):
         if key == 'name':
             total_answers += 1
             for accepted_name in answer['names']:
-                if accepted_name.lower().replace(' ','') == data['name'].lower().replace(' ',''):
+                if liberal_compare(data['name'], accepted_name):
                     reason = "Name correct"
                     correct_answers += 1
                     reward += 225
@@ -52,7 +54,7 @@ def evaluate_answer(data):
         elif key == 'country':
             total_answers += 1
             for accepted_place in answer['countries']:
-                if accepted_place.lower().replace(' ','') == data['country'].lower().replace(' ',''):
+                if liberal_compare(data['country'], accepted_place):
                     reason = "Civilization correct"
                     correct_answers += 1
                     reward += 50
@@ -73,32 +75,44 @@ def evaluate_answer(data):
     return False, session['score'], reward, reason
 
 
-def prepare_prompt(question_selected):
-    question_str = QUESTIONS['questions'][question_selected]
-    topic = session['topic']
-    name = TOPICS['topics'][topic]['names'][0]
-    prompt = f"""The following is a conversation with {name}.
+def prepare_prompt(question, topic):
+    century = topic['century']
+    BC = ''
+    if century < 0:
+        BC = ' BC'
+    name = topic['names'][0]
+    prompt = f"""The following is a conversation with {name}.  {name} lived around year {century}{BC}.
 
 {name}: My name is {name}.  What questions can I answer for you?
 
-Human: {name}, {question_str}
+Human: {name}, around year {century}{BC}, {question}
 {name}:"""
-    print('PROMPT:\n',prompt)
     return prompt
 
 
-def ask_gpt3(prompt, params=None):
+def ask_gpt3(prompt, topic, params=None):
+    name = topic['names'][0]
+    century = topic['century']
     if not params:
         params = {
             "engine": "davinci",
             "temperature": 0.27,
-            "stop": ["\n", "."],
+            "frequency_penalty": 0.10,
+            "stop": [
+                "\nHuman", 
+                # f"\n{name}",
+                ],
         }
     completion = openai.Completion.create(**{"prompt": prompt}, **params)
     response = completion.choices[0].text.replace('\nA:', '')
-    topic = session['topic']
-    name = TOPICS['topics'][topic]['names'][0]
+    BC = ''
+    if century < 0:
+        BC = ' BC'
+
     response = re.sub(name, '<my name>', response, flags=re.IGNORECASE)
+    response = re.sub(f'the year {century}{BC}', 'my time', response, flags=re.IGNORECASE)
+    response = re.sub(f'year {century}{BC}', 'my time', response, flags=re.IGNORECASE)
+    response = re.sub(f'{century}{BC}', 'my time', response, flags=re.IGNORECASE)
     return response
 
 
@@ -107,7 +121,14 @@ def initialize_database():
     Database.initialize()
 
 
-@app.route('/api/start/conversation', methods=['POST', 'GET'])
+@app.route('/api/start/conversation', methods=['GET'])
+def test_conversation():
+    session.clear()
+    session['topic'] = random.randrange(0, len(TOPICS['topics']))
+    print('PICKING', session['topic'])
+    return TOPICS['topics'][session['topic']]
+
+@app.route('/api/start/conversation', methods=['POST'])
 def start_conversation():
     session.clear()
 
@@ -134,10 +155,16 @@ def start_conversation():
 @app.route('/api/ask/question', methods=['POST', 'GET'])
 def ask_question():
     data = request.get_json()
+
     question_selected = session['candidate_questions'][data['question']]
-    prompt = prepare_prompt(question_selected)
-    gpt3_response = ask_gpt3(prompt)
+    question_str = QUESTIONS['questions'][question_selected]
+    topic = TOPICS['topics'][session['topic']]
+
+    prompt = prepare_prompt(question_selected, topic)
+    print('PROMPT:\n',prompt)
+    gpt3_response = ask_gpt3(prompt, topic)
     print('>>', gpt3_response)
+
     session['question_answered'].append(question_selected)
     candidate_questions = get_candidate_questions()
     d = {
@@ -178,19 +205,24 @@ def finish():
     session.clear()
     return json.dumps(answer)
 
-def send_1():
-    return send_from_directory('../history-guesser/dist/', 'index.html')
 
-@app.route('/')
-@app.route('/about')
-@app.route('/contact')
-@app.route('/highscores')
-def send_1():
-    return send_from_directory('../history-guesser/dist/', 'index.html')
+def _proxy(*args, **kwargs):
+    TARGET = 'http://localhost:8080/'
 
-@app.route('/<path:path>')
-def send_rest(path):
-    return send_from_directory('../history-guesser/dist/', path)
+    resp = requests.request(
+        method=request.method,
+        url=request.url.replace(request.host_url, TARGET),
+        headers={key: value for (key, value) in request.headers if key != 'Host'},
+        data=request.get_data(),
+        cookies=request.cookies,
+        allow_redirects=False)
+
+    excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+    headers = [(name, value) for (name, value) in resp.raw.headers.items()
+               if name.lower() not in excluded_headers]
+
+    response = Response(resp.content, resp.status_code, headers)
+    return response
 
 
 @app.route('/api/highscore', methods=['GET'])
@@ -199,6 +231,23 @@ def high_score():
     d = {"scores": highscores}
     return json.dumps(d)
 
+
+@app.route('/')
+@app.route('/about')
+@app.route('/contact')
+@app.route('/highscores')
+def send_1():
+    if IS_DEBUG:
+        return _proxy()
+    return send_from_directory('../history-guesser/dist/', 'index.html')
+
+@app.route('/<path:path>')
+def send_rest(path):
+    if IS_DEBUG:
+        return _proxy(path)
+    return send_from_directory('../history-guesser/dist/', path)
+
+IS_DEBUG = os.environ.get('FLASK_ENV',None) == 'development'
 
 
 if __name__ == '__main__':

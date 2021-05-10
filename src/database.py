@@ -11,7 +11,13 @@ class Database:
     @staticmethod
     def initialize():
         client = pymongo.MongoClient(Database.conn_str)
-        Database.db = client['games']
+        is_debug = os.environ.get('FLASK_ENV',None) == 'development'
+        if is_debug:
+            print('Using local test db')
+            Database.db = client['games-local']
+        else:
+            print('using production db')
+            Database.db = client['games']
 
     @staticmethod
     def find_top_n(collection, field, n, order=-1):
