@@ -160,7 +160,7 @@ def ask_question():
     question_str = QUESTIONS['questions'][question_selected]
     topic = TOPICS['topics'][session['topic']]
 
-    prompt = prepare_prompt(question_selected, topic)
+    prompt = prepare_prompt(question_str, topic)
     print('PROMPT:\n',prompt)
     gpt3_response = ask_gpt3(prompt, topic)
     print('>>', gpt3_response)
