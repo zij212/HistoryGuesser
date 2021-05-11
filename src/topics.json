@@ -1,54 +1,54 @@
 {"topics": [
   {"names":  ["Genghis Khan"], "countries": ["mongolia"], "century":  1100},
-  {"names":  ["Henry Kissinger","Kissinger"], "countries": ["US", "america", "u.s."], "century":  1900},
+  {"names":  ["Henry Kissinger"], "countries": ["US", "america", "u.s."], "century":  1900},
 
-  {"names":  ["Gandhi", "Mahatma Gandhi"], "countries": ["india", "new delhi"], "century":  1900},
+  {"names":  ["Gandhi"], "countries": ["india", "new delhi"], "century":  1900},
 
-  {"names":  ["Napoleon Bonaparte", "Napoleon", "Bonaparte"], "countries": ["france","french"], "century":  1800},
-  {"names":  ["Rene Descartes", "Descartes"], "countries": ["france", "french"], "century":  1600},
-  {"names":  ["Joan of Arc", "Joan"], "countries": ["france", "french"], "century":  1400},
+  {"names":  ["Napoleon Bonaparte"], "countries": ["france","french"], "century":  1800},
+  {"names":  ["Rene Descartes"], "countries": ["france", "french"], "century":  1600},
+  {"names":  ["Joan of Arc"], "countries": ["france", "french"], "century":  1400},
   {"names":  ["Marie Curie", "madame curie"], "countries": ["france", "french","poland", "polish"], "century":  1900},
 
-  {"names":  ["Jadwiga of Poland", "Jadwiga"], "countries": ["poland", "polish"], "century":  1900},
+  {"names":  ["Jadwiga of Poland"], "countries": ["poland", "polish"], "century":  1900},
 
-  {"names":  ["Hernán Cortés", "Hernan Cortes", "Cortes", "Cortés"], "countries": ["spain", "spanish"], "century":  1500},
+  {"names":  ["Hernán Cortés", "Hernan Cortes"], "countries": ["spain", "spanish"], "century":  1500},
 
-  {"names":  ["Moctezuma II", "Moctezuma", "montezuma"], "countries": ["Aztecs", "aztec"], "century":  1500},
+  {"names":  ["Moctezuma"], "countries": ["Aztecs", "aztec"], "century":  1500},
 
-  {"names":  ["Julius Caesar", "Caesar"], "countries": ["rome", "romans"], "century":  -100},
+  {"names":  ["Julius Caesar"], "countries": ["rome", "romans"], "century":  -100},
 
   {"names":  ["Aristotle"], "countries": ["greece"], "century":  -300},
-  {"names":  ["Leonardo da Vinci", "leonardo", "da Vinci"], "countries": ["greece","greek"], "century":  1500},
-  {"names":  ["Alexander the Great", "Alexander III"], "countries": ["greece","greek"], "century":  -300},
+  {"names":  ["Leonardo da Vinci"], "countries": ["greece","greek"], "century":  1500},
+  {"names":  ["Alexander the Great"], "countries": ["greece","greek"], "century":  -300},
 
-  {"names":  ["Queen Elizabeth I", "Queen Elizabeth", "Elizabeth"], "countries": ["british","english", "england", "britain"], "century":  1500},
+  {"names":  ["Queen Elizabeth I"], "countries": ["british","english", "england", "britain"], "century":  1500},
   {"names":  ["Henry VIII"], "countries": ["british","english", "england", "britain"], "century":  1500},
   {"names":  ["Margaret Thatcher"], "countries": ["british","english", "england", "britain"], "century":  1900},
 
-  {"names":  ["Albert Einstein", "einstein"], "countries": ["US", "germany", "german", "u.s."], "century":  1900},
+  {"names":  ["Albert Einstein"], "countries": ["US", "germany", "german", "u.s."], "century":  1900},
 
-  {"names":  ["Henry Kissinger","Kissinger", "Henry Kissenger"], "countries": ["US", "america", "u.s."], "century":  1900},
-  {"names":  ["George Washington", "washington"], "countries": ["us","america","u.s."], "century":  1700},
-  {"names":  ["Abraham Lincoln", "Lincoln"], "countries": ["us","america","u.s."], "century":  1800},
+  {"names":  ["Henry Kissinger"], "countries": ["US", "america", "u.s."], "century":  1900},
+  {"names":  ["George Washington"], "countries": ["us","america","u.s."], "century":  1700},
+  {"names":  ["Abraham Lincoln"], "countries": ["us","america","u.s."], "century":  1800},
   {"names":  ["Ruth Bader Ginsburg", "RBG", "Ginsburg", "ruth"], "countries": ["us","america","u.s."], "century":  1900},
 
-  {"names":  ["Jacques Cartier", "Cartier"], "countries": ["canada","canadian"], "century":  1500},
+  {"names":  ["Jacques Cartier"], "countries": ["canada","canadian"], "century":  1500},
 
   {"names":  ["Cao Cao", "mengde"], "countries": ["China","chinese"], "century":  200},
-  {"names":  ["Mao Zedong", "mao"], "countries": ["China","chinese"], "century":  1900},
+  {"names":  ["Mao Zedong"], "countries": ["China","chinese"], "century":  1900},
 
-  {"names":  ["Oda Nobunaga", "Nobunaga"], "countries": ["Japan","japanese"], "century":  1500},
+  {"names":  ["Oda Nobunaga"], "countries": ["Japan","japanese"], "century":  1500},
 
-  {"names":  ["Joeseph Stalin", "Stalin"], "countries": ["russia","russian"], "century":  1900},
-  {"names":  ["Peter the Great", "Peter"], "countries": ["russia","russian"], "century":  1700},
+  {"names":  ["Joeseph Stalin"], "countries": ["russia","russian"], "century":  1900},
+  {"names":  ["Peter the Great"], "countries": ["russia","russian"], "century":  1700},
 
-  {"names":  ["Nelson Mandela", "mandela"], "countries": ["South Africa","africa"], "century":  1900},
+  {"names":  ["Nelson Mandela"], "countries": ["South Africa","africa"], "century":  1900},
 
-  {"names":  ["Mustafa Atatürk", "ataturk", "Atatürk"], "countries": ["Turkey","turkish"], "century":  1900},
+  {"names":  ["Mustafa Atatürk"], "countries": ["Turkey","turkish"], "century":  1900},
 
   {"names":  ["Saladin"], "countries": ["egypt", "egyptian", "palestine", "syria", "yemen"], "century":  1100},
 
-  {"names":  ["Leif Erikson", "Erikson", "Ericson"], "countries": ["norse","Iceland", "Norway", "Viking", "vinland"], "century":  1000},
+  {"names":  ["Leif Erikson", "Ericson"], "countries": ["norse","Iceland", "Norway", "Viking", "vinland"], "century":  1000},
   {"names":  ["Erik the Red"], "countries": ["norse", "Iceland", "Norway", "Viking", "vinland"], "century":  900},
 
   {"names":  ["Sigmund Freud"], "countries": ["austria", "german", "austrian", "german"], "century":  1800}

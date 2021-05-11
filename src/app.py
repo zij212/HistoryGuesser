@@ -2,6 +2,8 @@ import os
 import json
 import random
 import re
+import csv
+from io import StringIO
 
 import requests
 import openai
@@ -16,26 +18,53 @@ openai.organization = os.environ['OPENAI_API_ORG_ID']
 openai.api_key = os.environ['OPENAI_API_KEY']
 
 with open('./topics.json') as f:
-    TOPICS = json.load(f)
+    url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSKr4CVKgMpsLO4UaQd-MkBHGjWdFPN0yo-Ma0K1X_7IxAwe2sSxTyCirG6Z21-zaYTWUCldhGvf26M/pub?output=tsv"
+    res = requests.get(url)
+    assert res.status_code == 200
+    tsv = res.content.decode('utf8')
+    rd = csv.reader(StringIO(tsv), delimiter="\t", quotechar='"')
+    TOPICS = []
+    # skip header
+    next(rd)
+    for row in rd:
+        TOPICS.append({
+            'names': row[0].split(','),
+            'countries': row[1].split(','),
+            'century': int(row[2]),
+        })
+
 with open('./questions.json') as f:
-    QUESTIONS = json.load(f)
+    url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9WxH6JpMkiNRnBDq3FnZ52fsauxA74-XXn8eVl9d4ryNdiPp6ykuBFQhNZzWAhuTD3Bf22jmf2NxM/pub?output=tsv"
+    res = requests.get(url)
+    assert res.status_code == 200
+    tsv = res.content.decode('utf8')
+    rd = csv.reader(StringIO(tsv), delimiter="\t", quotechar='"')
+    QUESTIONS = []
+    # skip header
+    next(rd)
+    for row in rd:
+        # was it tested?
+        if row[1].lower() == 'yes':
+            QUESTIONS.append(row[0])
+
+
 NUM_TRIES = 5
 
 
 def get_candidate_questions():
     answered_questions = session['question_answered']
-    all_questions = range(len(QUESTIONS['questions']))
+    all_questions = range(len(QUESTIONS))
     available_questions = set(all_questions) - set(answered_questions)
 
     size = min(4, len(available_questions))
     candidate_questions = random.sample(available_questions, size)
     session["candidate_questions"] = candidate_questions
-    return [QUESTIONS['questions'][idx] for idx in candidate_questions]
+    return [QUESTIONS[idx] for idx in candidate_questions]
 
 
 def evaluate_answer(data):
     topic = session['topic']
-    answer = TOPICS['topics'][topic]
+    answer = TOPICS[topic]
 
     reward = 0
     correct_answers = 0
@@ -136,9 +165,9 @@ def initialize_database():
 @app.route('/api/start/conversation', methods=['GET'])
 def test_conversation():
     session.clear()
-    session['topic'] = random.randrange(0, len(TOPICS['topics']))
+    session['topic'] = random.randrange(0, len(TOPICS))
     print('PICKING', session['topic'])
-    return TOPICS['topics'][session['topic']]
+    return TOPICS[session['topic']]
 
 @app.route('/api/start/conversation', methods=['POST'])
 def start_conversation():
@@ -148,7 +177,7 @@ def start_conversation():
     username = data['username']
 
     session['username'] = username
-    session['topic'] = random.randrange(0, len(TOPICS['topics']))
+    session['topic'] = random.randrange(0, len(TOPICS))
     print('PICKING', session['topic'])
     session['score'] = 0
     session['question_answered'] = []
@@ -169,8 +198,8 @@ def ask_question():
     data = request.get_json()
 
     question_selected = session['candidate_questions'][data['question']]
-    question_str = QUESTIONS['questions'][question_selected]
-    topic = TOPICS['topics'][session['topic']]
+    question_str = QUESTIONS[question_selected]
+    topic = TOPICS[session['topic']]
 
     prompt = prepare_prompt(question_str, topic)
     print('PROMPT:\n',prompt)
@@ -211,7 +240,7 @@ def submit_answer():
 @app.route('/api/finish', methods=['GET'])
 def finish():
     topic = session['topic']
-    answer = TOPICS['topics'][topic]
+    answer = TOPICS[topic]
     highscore = Highscore(session['username'], session['score'], answer['names'][0])
     highscore.save_to_mongo()
     session.clear()

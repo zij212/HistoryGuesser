@@ -409,8 +409,9 @@ export default class Game extends Vue {
             this.time = this.time - 1;
             if (this.time == 0) {
                 clearInterval(interval);
-                this.timesUp();
-                this.doGameOver();
+                if (this.discussion.length) {
+                    this.doGameOver();
+                }
             }
           }
       },1000);
@@ -453,10 +454,6 @@ export default class Game extends Vue {
   giveUp(){
       this.discussion = []
       this.onStop();
-  }
-
-  timesUp(){
-      console.log("times up!");
   }
 
   onNewQuestions(questions: string[]): void {

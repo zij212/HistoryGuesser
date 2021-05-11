@@ -29,7 +29,7 @@ def liberal_compare(name1, name2):
     name2 = unidecode.unidecode(name2)
 
     ignore_list = (
-        'of', 'the', 'in', 'queen', 'king', 'sir',
+        'of', 'the', 'in', 'queen', 'king', 'sir', 'da',
         'I', 
         # "II", "III", "IV", "V", "VI","VII", "VIII",
     )
